@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search SNOMED</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            function log(message) {
+                $("<div>").text(message).prependTo("#log");
+                $("#log").scrollTop(0);
+            }
+
+            $("#snomed").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "snomed",
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function (data) {
+                            //console.log(data['data']);
+                            response($.map(data['data'], function (item) {
+                                return {
+                                    term: item.term,
+                                    conceptid: item.conceptid,
+                                    id: item.id,
+                                    label: item.term
+                                }
+                            }));
+                            //response( data['data'] );
+                        }
+                    });
+                },
+                minLength: 4,
+                select: function (event, ui) {
+                    log("Selected: " + ui.item.term.toUpperCase() + " aka " + ui.item.id.toUpperCase());
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div class="ui-widget">
+    <label for="snomed">Term: </label>
+    <input id="snomed">
+</div>
+
+<div class="ui-widget" style="margin-top:2em; font-family:Arial">
+    Result:
+    <div id="log" style="height: 200px; width: 300px; overflow: auto;" class="ui-widget-content"></div>
+</div>
+
+
+</body>
+</html>
